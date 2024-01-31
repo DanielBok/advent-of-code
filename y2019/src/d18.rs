@@ -117,14 +117,19 @@ enum Tile {
 }
 
 pub fn solve_a() {
-    let grid = parse_map_to_grid(PUZZLE_INPUT);
-    let graph = parse_grid_to_graph(&grid);
+    let graph = parse_map_to_graph(PUZZLE_INPUT);
 
     if let Some(ans) = search(graph, '@') {
         println!("Solution A: {}", ans);
     } else {
-        panic!("Could not find result");
+        panic!("A: Could not find solution");
     }
+}
+
+
+fn parse_map_to_graph(input: &str) -> Graph {
+    let grid = parse_map_to_grid(input);
+    parse_grid_to_graph(grid)
 }
 
 
@@ -145,12 +150,12 @@ fn parse_map_to_grid(input: &str) -> HashMap<Point, Tile> {
     grid
 }
 
-fn parse_grid_to_graph(grid: &HashMap<Point, Tile>) -> Graph {
+fn parse_grid_to_graph(grid: HashMap<Point, Tile>) -> Graph {
     let mut graph = HashMap::new();
 
-    for (pt, tile) in grid {
+    for (pt, tile) in &grid {
         if let Tile::Node(c) = tile {
-            graph.insert(*c, get_neighbour_nodes(grid, *pt));
+            graph.insert(*c, get_neighbour_nodes(&grid, *pt));
         }
     }
 
@@ -264,8 +269,6 @@ fn search(graph: Graph, node: char) -> Option<usize> {
         }
     }
 
-    dbg!("Distances: {:?}", distances);
-
     None
 }
 
@@ -339,15 +342,145 @@ fn get_reachable_keys(graph: &Graph, keys: &BTreeSet<char>, start: char) -> Vec<
 }
 
 
-pub fn solve_b() {}
+pub fn solve_b() {
+    let graph = parse_map_to_graph(&modify_input(PUZZLE_INPUT));
+
+    if let Some(ans) = quadrant_search(&graph) {
+        println!("Solution B: {}", ans);
+    } else {
+        panic!("B: Could not find solution");
+    }
+}
+
+
+fn modify_input(input: &str) -> String {
+    let mut lines = input.lines().map(|e| e.to_string()).collect::<Vec<_>>();
+
+    let (row, col) = 'inp: {
+        for (i, line) in lines.iter().enumerate() {
+            if line.contains("@") {
+                let row = i;
+                let col = line.char_indices().find_map(|(idx, c)| { if c == '@' { Some(idx) } else { None } }).unwrap();
+                break 'inp (row, col);
+            }
+        }
+        panic!("Could not find row and col index to change")
+    };
+
+    lines[row].replace_range(col - 1..=col + 1, "###");
+    lines[row - 1].replace_range(col - 1..=col + 1, "@#$");
+    lines[row + 1].replace_range(col - 1..=col + 1, "%#*");
+
+    lines.join("\n")
+}
+
+
+#[derive(PartialEq, Eq)]
+struct QuadrantSearchState {
+    steps: usize,
+    robots: [char; 4],
+    keys: BTreeSet<char>,
+}
+
+impl Ord for QuadrantSearchState {
+    fn cmp(&self, other: &Self) -> Ordering {
+        other.steps.cmp(&self.steps)
+            .then(self.keys.len().cmp(&other.keys.len()))
+    }
+}
+
+impl PartialOrd for QuadrantSearchState {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl QuadrantSearchState {
+    fn cache_key(&self) -> ([char; 4], BTreeSet<char>) {
+        (self.robots, self.keys.clone())
+    }
+}
+
+
+fn quadrant_search(graph: &Graph) -> Option<usize> {
+    let num_keys = graph.iter().filter(|(c, _)| c.is_ascii_lowercase()).count();
+
+    let robots = ['@', '$', '%', '*'];
+
+    // best distance given position (node) and types of keys collected (set of keys)
+    let mut distances: HashMap<([char; 4], BTreeSet<char>), usize> = HashMap::from([
+        ((robots.clone(), BTreeSet::new()), 0)
+    ]);
+
+    let mut queue = BinaryHeap::from([
+        QuadrantSearchState {
+            steps: 0,
+            robots,
+            keys: BTreeSet::new(),
+        }
+    ]);
+
+
+    let mut cache: HashMap<(char, BTreeSet<char>), Vec<(char, usize)>> = HashMap::new();
+
+    while let Some(current) = queue.pop() {
+        if current.keys.len() == num_keys {
+            return Some(current.steps);
+        }
+
+        if let Some(&best_num_steps) = distances.get(&current.cache_key()) {
+            if current.steps > best_num_steps {
+                continue;
+            }
+        }
+
+        for (robot_num, &robot_loc) in current.robots.iter().enumerate() {
+            // get every reachable nodes for current robot
+            let entry = cache.entry((robot_loc, current.keys.clone()))
+                .or_insert_with(|| get_reachable_keys(&graph, &current.keys, robot_loc));
+
+            for &mut (next_node, cost) in entry {
+                // for each reachable node for the robot, set the robot's next location to this node
+                // and update its keys
+                let mut next_keys = current.keys.clone();
+                next_keys.insert(next_node);
+
+                // this lets the robot update its own position while keeping the other robot's position fixed
+                let mut next_robots = current.robots.clone();
+                next_robots[robot_num] = next_node;
+
+                // next distance cost
+                let next_steps = current.steps + cost;
+
+                // check if we have seen the next state
+                let distance = distances
+                    .entry((next_robots.clone(), next_keys.clone()))
+                    .or_insert(usize::MAX);
+
+                // if we haven't seen the next state or the next state we saved previously is not as good
+                // as the current one we found, we search out the next state
+                if next_steps < *distance {
+                    *distance = next_steps;
+                    queue.push(QuadrantSearchState {
+                        steps: next_steps,
+                        robots: next_robots,
+                        keys: next_keys,
+                    });
+                }
+            }
+        }
+    }
+
+    None
+}
 
 
 #[cfg(test)]
 mod tests {
-    use crate::d18::{parse_grid_to_graph, parse_map_to_grid, search};
+    use crate::d18::{parse_map_to_graph, search};
 
     #[test]
-    fn test_examples() {
+    fn test_part_one() {
         for (inp, exp) in [
             ("#########
 #b.A.@.a#
@@ -378,10 +511,39 @@ mod tests {
 ###g#h#i################
 ########################", 81)
         ] {
-            let graph = parse_grid_to_graph(&parse_map_to_grid(inp));
+            let graph = parse_map_to_graph(inp);
 
             let ans = search(graph, '@');
             assert_eq!(ans, Some(exp));
         }
+    }
+
+    #[test]
+    fn test_part_two() {
+        for (inp, _exp) in [
+            ("#######
+#a.#Cd#
+##@#@##
+#######
+##@#@##
+#cB#Ab#
+#######", 8)
+        ] {
+            let input = modify_input(inp);
+            dbg!(input);
+        }
+    }
+
+    fn modify_input(input: &str) -> String {
+        let mut input = input.to_string();
+        let mut changes = vec!["$", "%", "*"];
+
+        while let Some(token) = changes.pop() {
+            if input.contains("@") {
+                input = input.replacen("@", token, 1);
+            }
+        }
+
+        input
     }
 }
