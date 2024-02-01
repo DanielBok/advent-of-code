@@ -44,7 +44,7 @@ fn get_map(input: &str) -> Vec<Vec<char>> {
     let mut map: Vec<Vec<char>> = vec![];
 
     let mut last = vec![];
-    for &v in program.get_outputs() {
+    for v in program.get_outputs() {
         match v {
             46 => { last.push('.'); }
             10 => {

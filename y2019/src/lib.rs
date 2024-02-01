@@ -18,6 +18,7 @@ mod d15;
 mod d16;
 mod d17;
 mod d18;
+mod d19;
 
 pub fn solve(day: i32) {
     match day {
@@ -39,8 +40,9 @@ pub fn solve(day: i32) {
         16 => (d16::solve_a(), d16::solve_b()),
         17 => (d17::solve_a(), d17::solve_b()),
         18 => (d18::solve_a(), d18::solve_b()),
+        19 => (d19::solve_a(), d19::solve_b()),
         0 => {
-            for i in 1..=17 {
+            for i in 1..=19 {
                 println!("Day {i}");
                 solve(i);
             }

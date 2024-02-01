@@ -266,8 +266,8 @@ impl IntCodeProgram {
         self.finished
     }
 
-    pub fn get_outputs(&self) -> &Vec<i64> {
-        &self.outputs
+    pub fn get_outputs(&mut self) -> &mut Vec<i64> {
+        &mut self.outputs
     }
 
     pub fn append_inputs(&mut self, other: &mut VecDeque<i64>) {
