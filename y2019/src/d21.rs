@@ -22,7 +22,7 @@ WALK
 }
 
 fn run_bot(program: &mut IntCodeProgram, script: &str) -> Option<i64> {
-    program.append_inputs(&mut script.chars().map(|e| e as i64).collect());
+    program.append_inputs(&script.chars().map(|e| e as i64).collect::<Vec<_>>());
 
     while !program.done() {
         program.run();

@@ -92,8 +92,8 @@ pub fn solve_b() {
     for mut raw_input in check_solution() {
         raw_input.push_str("\n");
 
-        let mut inp = raw_input.chars().map(|c| c as i64).collect::<VecDeque<_>>();
-        program.append_inputs(&mut inp);
+        let inp = raw_input.chars().map(|c| c as i64).collect::<Vec<_>>();
+        program.append_inputs(&inp);
     }
 
     while !program.done() {

@@ -270,8 +270,8 @@ impl IntCodeProgram {
         &mut self.outputs
     }
 
-    pub fn append_inputs(&mut self, other: &mut VecDeque<i64>) {
-        self.inputs.append(other);
+    pub fn append_inputs(&mut self, other: &[i64]) {
+        self.inputs.append(&mut VecDeque::from(other.to_vec()));
     }
 
     /// Runs and stops either at OUTPUT or HALTED op code.

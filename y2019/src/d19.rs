@@ -10,8 +10,8 @@ pub fn solve_a() {
     let ans: i64 = (0..50).cartesian_product(0..50)
         .map(|(x, y)| {
             let mut program = IntCodeProgram::from_str(PUZZLE_INPUT);
-            let mut input = VecDeque::from([x, y]);
-            program.append_inputs(&mut input);
+            let input = vec![x, y];
+            program.append_inputs(&input);
             program.run();
 
             *program.get_outputs().last().unwrap()
@@ -73,7 +73,7 @@ fn get_start_x_position(input: &str, first_x: usize, y: usize) -> Option<usize> 
 
 fn get_output(input: &str, x: i64, y: i64) -> i64 {
     let mut program = IntCodeProgram::from_str(input);
-    program.append_inputs(&mut VecDeque::from([x, y]));
+    program.append_inputs(&vec![x, y]);
     program.run();
 
     program.get_outputs().pop().unwrap()
