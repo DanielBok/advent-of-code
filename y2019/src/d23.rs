@@ -27,21 +27,16 @@ fn run_till_255(network: &mut Network) -> i64 {
             prg.run(); // run till there's no input or program finished
 
             assert_eq!(prg.outputs.len() % 3, 0);
-            let mut hold = Vec::new();
-            while let Some(v) = prg.outputs.pop_front() {
-                hold.push(v);
+            while !prg.outputs.is_empty() {
+                let to = prg.outputs.pop_front().unwrap() as usize;
+                let x = prg.outputs.pop_front().unwrap();
+                let y = prg.outputs.pop_front().unwrap();
 
-                if hold.len() == 3 {
-                    let to = hold[0] as usize;
-                    let x = hold[1];
-                    let y = hold[2];
-
-                    if to == 255 {
-                        return y;
-                    }
+                if to == 255 {
+                    return y;
+                } else {
                     network.message_queue[to].push_back(x);
                     network.message_queue[to].push_back(y);
-                    hold.clear();
                 }
             }
         }
@@ -87,7 +82,7 @@ fn run_till_idle(network: &mut Network) -> i64 {
                     network.message_queue[to].push_back(x);
                     network.message_queue[to].push_back(y);
                 }
-                idle= false;
+                idle = false;
             }
         }
 
