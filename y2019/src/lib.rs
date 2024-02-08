@@ -26,7 +26,7 @@ mod d23;
 mod d24;
 mod d25;
 
-pub fn solve(day: i32) {
+pub fn solve(day: usize) {
     match day {
         1 => (d1::solve_a(), d1::solve_b()),
         2 => (d2::solve_a(), d2::solve_b()),
@@ -61,7 +61,7 @@ pub fn solve(day: i32) {
             ((), ())
         }
         _ => {
-            panic!("Day must be between [0, 25] where 0 runs everything.");
+            panic!("Day {day} not implemented. ");
         }
     };
 }

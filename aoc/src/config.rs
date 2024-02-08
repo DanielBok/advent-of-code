@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub struct Config {
-    pub year: i32,
-    pub day: i32,
+    pub year: usize,
+    pub day: usize,
 }
 
 impl Config {
@@ -10,9 +10,9 @@ impl Config {
             return Err(String::from("Not enough arguments"));
         }
 
-        let year = match args[1].parse::<i32>() {
+        let year = match args[1].parse::<usize>() {
             Ok(x) => {
-                let valid_years = [2019];
+                let valid_years = [2017, 2019];
                 if valid_years.contains(&x) {
                     Ok(x)
                 } else {
@@ -22,9 +22,9 @@ impl Config {
             Err(e) => Err(format!("Could not parse year: {}", e))
         }?;
 
-        let day = match args[2].parse::<i32>() {
+        let day = match args[2].parse::<usize>() {
             Ok(x) => {
-                if 0 <= x && x <= 25 {
+                if x <= 25 {
                     Ok(x)
                 } else {
                     Err("day must be between 0 and 25 [inclusive]. 0 runs everything.".to_string())

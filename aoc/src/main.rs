@@ -3,6 +3,7 @@ use std::process;
 
 use config::Config;
 use y2019;
+use y2017;
 
 mod config;
 
@@ -15,11 +16,14 @@ fn main() {
     });
 
     match conf.year {
+        2017 => {
+            y2017::solve(conf.day);
+        }
         2019 => {
-            y2019::solve(conf.day)
+            y2019::solve(conf.day);
         }
         _ => {
-            panic!("Invalid AOC year {}", conf.year)
+            panic!("Invalid AOC year {}", conf.year);
         }
     }
 }
