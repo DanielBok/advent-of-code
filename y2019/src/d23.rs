@@ -123,15 +123,15 @@ impl Network {
 
 pub struct IntCodeProgram {
     command: CommandMap,
-    inputs: VecDeque<i64>,
-    outputs: VecDeque<i64>,
-    finished: bool,
+    pub inputs: VecDeque<i64>,
+    pub outputs: VecDeque<i64>,
+    pub finished: bool,
     ptr: usize,
     offset: i64,
 }
 
 impl IntCodeProgram {
-    fn from_str(input: &str) -> IntCodeProgram {
+    pub fn from_str(input: &str) -> IntCodeProgram {
         let command = input.split(",")
             .map(|x| x.parse::<i64>().unwrap())
             .enumerate()
