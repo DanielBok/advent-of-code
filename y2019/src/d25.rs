@@ -38,13 +38,3 @@ impl IntCodeProgram {
         println!("{}", output);
     }
 }
-
-
-#[cfg(test)]
-mod tests {
-    use crate::d25::solve_a;
-
-    fn test_find_password() {
-        solve_a()
-    }
-}
