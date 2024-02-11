@@ -34,6 +34,50 @@ impl Node {
     fn add_child(&mut self, child: Rc<RefCell<Node>>) {
         self.children.push(child);
     }
+
+    fn find_imbalanced_node(&self) -> (Option<usize>, usize) {
+        let mut total_weight = self.weight;
+        let mut child_weights = HashMap::new();
+        for c in self.children.iter() {
+            let (imb, child_weight) = c.borrow().find_imbalanced_node();
+
+            if imb.is_some() {
+                return (imb, 0);
+            }
+
+            child_weights.entry(child_weight)
+                .and_modify(|v: &mut Vec<Rc<RefCell<Node>>>| {
+                    v.push(c.clone());
+                })
+                .or_insert(vec![c.clone()]);
+
+            total_weight += child_weight;
+        }
+
+        if child_weights.len() > 1 {
+            let (&problem_weight, problem_children) = child_weights.iter()
+                .find(|(_, cv)| {
+                    cv.len() == 1
+                }).unwrap();
+
+            // problem child weight
+            let pc_weight = problem_children.first().unwrap().borrow().weight;
+
+            let (&ideal_weight, _) = child_weights.iter()
+                .find(|(_, cv)| cv.len() > 1)
+                .unwrap();
+
+            let w = if ideal_weight < problem_weight {
+                pc_weight - (problem_weight - ideal_weight)
+            } else {
+                pc_weight + (ideal_weight - problem_weight)
+            };
+
+            (Some(w), 0)
+        } else {
+            (None, total_weight)
+        }
+    }
 }
 
 impl Hash for Node {
@@ -106,4 +150,11 @@ fn form_graph(input: &str) -> Rc<RefCell<Node>> {
     panic!("All nodes have parents!")
 }
 
-pub fn solve_b() {}
+pub fn solve_b() {
+    let root = form_graph(&read_content(7));
+
+    let (ans, _) = root.borrow().find_imbalanced_node();
+
+    assert!(ans.is_some(), "Could not find solution");
+    println!("Solution B: {}", ans.unwrap());
+}
