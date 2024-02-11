@@ -7,6 +7,7 @@ mod d4;
 mod d5;
 mod d6;
 mod d7;
+mod d8;
 
 pub fn solve(day: usize) {
     match day {
@@ -17,6 +18,7 @@ pub fn solve(day: usize) {
         5 => { (d5::solve_a(), d5::solve_b()); }
         6 => { (d6::solve_a(), d6::solve_b()); }
         7 => { (d7::solve_a(), d7::solve_b()); }
+        8 => { (d8::solve_a(), d8::solve_b()); }
         0 => {
             for i in 1..=25 {
                 println!("Day {i}");
