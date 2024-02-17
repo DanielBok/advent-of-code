@@ -68,6 +68,26 @@ impl Firewall {
 
         score
     }
+
+    /// Finds the earliest required delay so that the packet can move through
+    /// the network without being caught
+    fn find_delay(&self) -> usize {
+        'delay_loop: for delay in 0..usize::MAX {
+            for (pos, height) in self.layers.iter() {
+                // the current position of the scanner at that layer is given by
+                // the following formula
+                let scanner_position = (pos + delay) % (2 * (height - 1));
+
+                // if scanner position == 0, packet can't go through given that delay
+                if scanner_position == 0 {
+                    continue 'delay_loop;
+                }
+            }
+            return delay;
+        }
+
+        panic!("Solution not found")
+    }
 }
 
 
@@ -78,7 +98,12 @@ pub fn solve_a() {
     println!("Solution A: {}", ans);
 }
 
-pub fn solve_b() {}
+pub fn solve_b() {
+    let firewall = Firewall::new(&read_content(13));
+    let ans = firewall.find_delay();
+
+    println!("Solution B: {}", ans);
+}
 
 
 #[cfg(test)]
