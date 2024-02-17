@@ -3,21 +3,8 @@ use std::fmt::{Display, Formatter};
 
 use itertools::Itertools;
 
-fn get_input(format: bool) -> Vec<usize> {
-    let inp = vec![70, 66, 255, 2, 48, 0, 54, 48, 80, 141, 244, 254, 160, 108, 1, 41];
-
-    if format {
-        let mut inp = inp.iter()
-            .map(|v| v.to_string()).join(",")
-            .chars()
-            .map(|c| c as usize)
-            .collect_vec();
-
-        inp.extend([17, 31, 73, 47, 23]);
-        inp
-    } else {
-        inp
-    }
+fn get_input() -> Vec<usize> {
+    vec![70, 66, 255, 2, 48, 0, 54, 48, 80, 141, 244, 254, 160, 108, 1, 41]
 }
 
 struct KnotHash {
@@ -102,7 +89,7 @@ impl Display for KnotHash {
 
 
 pub fn solve_a() {
-    let inputs = get_input(false);
+    let inputs = get_input();
     let mut sk = KnotHash::new(256);
     sk.apply_knots(&inputs, 1);
 
@@ -112,14 +99,29 @@ pub fn solve_a() {
 }
 
 pub fn solve_b() {
-    let inputs = get_input(true);
-    let mut sk = KnotHash::new(256);
-    sk.apply_knots(&inputs, 64);
-
-    let ans = sk.hash();
+    let input = format_input(&get_input()
+        .iter()
+        .map(|v| v.to_string())
+        .join(",")
+    );
+    let ans = knot_hash(&input);
 
     assert_eq!(&ans, "decdf7d377879877173b7f2fb131cf1b");
     println!("Solution B: {}", ans);
+}
+
+pub fn format_input(input: &str) -> Vec<usize> {
+    let mut inp = input.chars().map(|c| c as usize).collect_vec();
+    inp.extend([17, 31, 73, 47, 23]);
+
+    inp
+}
+
+pub fn knot_hash(input: &Vec<usize>) -> String {
+    let mut sk = KnotHash::new(256);
+    sk.apply_knots(&input, 64);
+
+    sk.hash()
 }
 
 
