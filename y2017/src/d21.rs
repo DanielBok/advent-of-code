@@ -269,11 +269,10 @@ pub fn solve_b() {
 
     for _ in 0..18 {
         grid = grid.evolve(&rulebook);
-        println!("{}", grid.num_pixels());
     }
 
     let ans = grid.num_pixels();
-    println!("Solution A: {}", ans);
+    println!("Solution B: {}", ans);
 }
 
 #[cfg(test)]
