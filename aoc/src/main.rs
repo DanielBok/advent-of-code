@@ -16,12 +16,9 @@ fn main() {
     });
 
     match conf.year {
-        2017 => {
-            y2017::solve(conf.day);
-        }
-        2019 => {
-            y2019::solve(conf.day);
-        }
+        2017 => y2017::solve(conf.day),
+        2019 => y2019::solve(conf.day),
+        2020 => y2020::solve(conf.day),
         _ => {
             panic!("Invalid AOC year {}", conf.year);
         }

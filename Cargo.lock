@@ -17,6 +17,7 @@ version = "0.1.0"
 dependencies = [
  "y2017",
  "y2019",
+ "y2020",
 ]
 
 [[package]]
@@ -169,3 +170,7 @@ dependencies = [
  "itertools",
  "regex",
 ]
+
+[[package]]
+name = "y2020"
+version = "0.1.0"
