@@ -28,40 +28,31 @@ fn input_to_vec(input: &str) -> Vec<usize> {
 
 impl From<Vec<usize>> for List {
     fn from(input: Vec<usize>) -> Self {
-        let nodes = input.into_iter().map(|value| {
-            let node = Node {
-                value,
-                prev: ptr::null_mut(),
-                next: ptr::null_mut(),
-            };
+        let max = *input.iter().max().unwrap();
 
-            Box::into_raw(Box::new(node))
-        }).collect_vec();
+        let first = Box::into_raw(Box::new(Node {
+            value: input[0],
+            prev: ptr::null_mut(),
+            next: ptr::null_mut(),
+        }));
 
-        let mut pointer_map: HashMap<usize, NodePtr> = HashMap::new();
+        let mut pointer_map: HashMap<usize, NodePtr> = HashMap::from([(input[0], first)]);
+
+        let last = input[1..].iter().fold(first, |prev, &value| {
+            let node = Box::into_raw(Box::new(Node { value, prev, next: ptr::null_mut() }));
+
+            unsafe { (*prev).next = node; };
+            pointer_map.insert(value, node);
+
+            node
+        });
+
         unsafe {
-            for i in 0..nodes.len() {
-                let node = nodes[i];
-
-                (*node).prev = if let Some(pi) = i.checked_sub(1) {
-                    nodes[pi]
-                } else {
-                    nodes[nodes.len() - 1]
-                };
-
-                (*node).next = if i + 1 < nodes.len() {
-                    nodes[i + 1]
-                } else {
-                    nodes[0]
-                };
-
-                pointer_map.insert((*node).value, node);
-            }
+            (*first).prev = last;
+            (*last).next = first;
         }
 
-        let max = *pointer_map.keys().max().unwrap();
-
-        List { current: nodes[0], pointer_map, max }
+        List { current: first, pointer_map, max }
     }
 }
 
