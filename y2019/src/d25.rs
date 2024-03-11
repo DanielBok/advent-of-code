@@ -38,3 +38,7 @@ impl IntCodeProgram {
         println!("{}", output);
     }
 }
+
+pub fn solve_b() {
+    println!("Completed AOC 2019");
+}

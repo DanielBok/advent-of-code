@@ -134,5 +134,5 @@ pub fn solve_a() {
 }
 
 pub fn solve_b() {
-    // no need to solve
+    println!("Completed AOC 2017");
 }
