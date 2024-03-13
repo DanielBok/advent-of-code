@@ -125,7 +125,7 @@ pub fn solve_b() {
 mod tests {
     use itertools::Itertools;
 
-    use crate::d5::{count_vent_overlaps, keep_non_diagonals, parse_input, Point, VentLine};
+    use super::{count_vent_overlaps, keep_non_diagonals, parse_input, Point, VentLine};
 
     const TEST_INPUT: &str = "0,9 -> 5,9
 8,0 -> 0,8
