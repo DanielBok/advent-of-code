@@ -329,5 +329,6 @@ dependencies = [
 name = "y2021"
 version = "0.1.0"
 dependencies = [
+ "indicatif",
  "itertools",
 ]
