@@ -2,6 +2,7 @@
 
 members = [
     "aoc",
+    "aoc_macros",
     "y2017",
     "y2019",
     "y2020",
