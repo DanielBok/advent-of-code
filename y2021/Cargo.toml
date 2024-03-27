@@ -9,3 +9,4 @@ edition = "2021"
 indicatif = "0.17.8"
 itertools = "0.12.1"
 aoc_macros = { path = "../aoc_macros" }
+regex = "1.10.4"
