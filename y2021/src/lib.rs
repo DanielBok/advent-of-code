@@ -20,6 +20,7 @@ mod d16;
 mod d17;
 mod d18;
 mod d19;
+mod d20;
 
 pub fn solve(day: usize) {
     match day {
@@ -51,7 +52,7 @@ pub fn solve(day: usize) {
                 t.join().unwrap();
             }
         }
-        // 20 => { (d20::solve_a(), d20::solve_b()); }
+        20 => { (d20::solve_a(), d20::solve_b()); }
         // 21 => { (d21::solve_a(), d21::solve_b()); }
         // 22 => { (d22::solve_a(), d22::solve_b()); }
         // 23 => { (d23::solve_a(), d23::solve_b()); }
