@@ -1,18 +1,10 @@
 use crate::inputs::read_contents;
 
-enum Value {
-    Char(char),
-    Int(i64),
-}
-
 // this is not necessary, but is here due to a previous implementation
 enum Instruction {
-    Inp(char),
-    Add(char, Value),
-    Mul(char, Value),
-    Div(char, Value),
-    Mod(char, Value),
-    Eql(char, Value),
+    Noop,
+    Add(i64),
+    Div(i64),
 }
 
 struct Block {
@@ -21,66 +13,55 @@ struct Block {
     add_y: i64,
 }
 
-fn parse_instructions(input: &str) -> Vec<Instruction> {
-    fn as_var(var: &str) -> char {
-        assert_eq!(var.len(), 1);
-        let var = var.chars().next().unwrap();
-        assert!(!var.is_digit(10));
-        var
-    }
-
-    fn as_value(value: &str) -> Value {
-        if value.len() == 1 && value.chars().next().unwrap().is_alphabetic() {
-            Value::Char(as_var(value))
-        } else {
-            Value::Int(value.parse::<i64>().expect(&format!("Could not parse value: {}", value)))
+fn parse_blocks(input: &str) -> Vec<Block> {
+    let instructions: Vec<Instruction> = {
+        fn parse_values(line: &str) -> Option<i64> {
+            match line.split_once(" ") {
+                None => None,
+                Some((_, value)) => {
+                    if value.len() == 1 && value.chars().next().unwrap().is_alphabetic() {
+                        None
+                    } else {
+                        Some(value.parse::<i64>().expect(&format!("Could not parse value: {}", value)))
+                    }
+                }
+            }
         }
-    }
 
-    fn parse_values(line: &str) -> (char, Value) {
-        let (var, value) = line.split_once(" ").unwrap();
-        (as_var(var), as_value(value))
-    }
-
-    input.lines()
-         .map(|line| {
-             let (cmd, rest) = line.split_once(" ").unwrap();
-             match cmd {
-                 "inp" => Instruction::Inp(as_var(rest)),
-                 _ => {
-                     let (var, value) = parse_values(rest);
+        input.lines()
+             .map(|line| {
+                 let (cmd, rest) = line.split_once(" ").unwrap();
+                 let value = parse_values(rest);
+                 if let Some(value) = value {
                      match cmd {
-                         "add" => Instruction::Add(var, value),
-                         "mul" => Instruction::Mul(var, value),
-                         "div" => Instruction::Div(var, value),
-                         "mod" => Instruction::Mod(var, value),
-                         "eql" => Instruction::Eql(var, value),
-                         _ => unreachable!()
+                         "add" => Instruction::Add(value),
+                         "div" => Instruction::Div(value),
+                         _ => Instruction::Noop
                      }
+                 } else {
+                     Instruction::Noop
                  }
-             }
-         })
-         .collect()
-}
+             })
+             .collect()
+    };
 
-fn parse_blocks(instructions: &[Instruction]) -> Vec<Block> {
     assert_eq!(instructions.len() % 18, 0);
 
     (0..instructions.len())
         .step_by(18)
         .map(|i| {
             let div_z = match &instructions[i + 4] {
-                Instruction::Div(_, _v @ Value::Int(i)) => *i,
+                Instruction::Div(i) => *i,
                 _ => unreachable!()
             };
 
             let add_x = match &instructions[i + 5] {
-                Instruction::Add(_, _v @ Value::Int(i)) => *i,
+                Instruction::Add(i) => *i,
                 _ => unreachable!()
             };
 
             let add_y = match &instructions[i + 15] {
-                Instruction::Add(_, _v @ Value::Int(i)) => *i,
+                Instruction::Add(i) => *i,
                 _ => unreachable!()
             };
 
@@ -128,7 +109,7 @@ fn search(blocks: &[Block], search_type: &SearchType) -> i64 {
 
 fn search_node(blocks: &[Block], z: i64, w: i64, index: usize, search_type: &SearchType) -> Option<Vec<i64>> {
     let block = &blocks[index];
-    
+
     // based on block.calculate, if this condition is not true, we diverge from z
     if block.div_z == 26 && z % 26 + block.add_x != w {
         return None;
@@ -153,16 +134,14 @@ fn search_node(blocks: &[Block], z: i64, w: i64, index: usize, search_type: &Sea
 }
 
 pub fn solve_a() {
-    let instructions = parse_instructions(&read_contents(24));
-    let blocks = parse_blocks(&instructions);
+    let blocks = parse_blocks(&read_contents(24));
 
     let ans = search(&blocks, &SearchType::Largest);
     println!("Solution A: {}", ans);
 }
 
 pub fn solve_b() {
-    let instructions = parse_instructions(&read_contents(24));
-    let blocks = parse_blocks(&instructions);
+    let blocks = parse_blocks(&read_contents(24));
 
     let ans = search(&blocks, &SearchType::Smallest);
     println!("Solution B: {}", ans);
