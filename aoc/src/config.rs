@@ -12,7 +12,7 @@ impl Config {
 
         let year = match args[1].parse::<usize>() {
             Ok(x) => {
-                let valid_years = [2017, 2019, 2020, 2021];
+                let valid_years = [2017, 2019, 2020, 2021, 2022];
                 if valid_years.contains(&x) {
                     Ok(x)
                 } else {
